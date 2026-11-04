@@ -29,8 +29,6 @@ def forward_chaining(facts, rules, goal):
 
             for fact in facts.copy():
 
-                substitution = {}
-
                 if len(conditions) == 1:
 
                     condition = conditions[0]
@@ -40,14 +38,56 @@ def forward_chaining(facts, rules, goal):
                         variable = condition[1]
                         value = fact[1]
 
-                        substitution[variable] = value
-
                         new_conclusion = (
                             conclusion[0],
-                            substitution[conclusion[1]]
+                            value
                         )
 
                         if new_conclusion not in facts:
+
+                            facts.add(new_conclusion)
+                            new_fact_added = True
+
+                            if new_conclusion == goal:
+                                return True, facts
+
+                else:
+
+                    variable = conditions[0][1]
+
+                    matching_value = None
+                    all_match = True
+
+                    for condition in conditions:
+
+                        expected_predicate = condition[0]
+
+                        found = False
+
+                        for f in facts:
+
+                            if f[0] == expected_predicate:
+
+                                if matching_value is None:
+                                    matching_value = f[1]
+                                    found = True
+
+                                elif f[1] == matching_value:
+                                    found = True
+
+                        if not found:
+                            all_match = False
+                            break
+
+                    if all_match:
+
+                        new_conclusion = (
+                            conclusion[0],
+                            matching_value
+                        )
+
+                        if new_conclusion not in facts:
+
                             facts.add(new_conclusion)
                             new_fact_added = True
 
